@@ -266,7 +266,7 @@ class FactureFournisseur extends CommonInvoice
 				{
 	            	if (empty($conf->global->MAIN_EXTRAFIELDS_DISABLED)) // For avoid conflicts if trigger used
 					{
-						$result=$this->insertExtraFields();
+						$result=$this->insertExtraFields();               // This also set $this->error or $this->errors if errors are found
 						if ($result < 0)
 						{
 							$error++;
@@ -274,11 +274,15 @@ class FactureFournisseur extends CommonInvoice
 					}
 				}
 				else if ($reshook < 0) $error++;
-                // Call trigger
-                $result=$this->call_trigger('BILL_SUPPLIER_CREATE',$user);
-                if ($result < 0) $error++;
-                // End call triggers
-
+				
+				if (! $error)
+				{
+                    // Call trigger
+                    $result=$this->call_trigger('BILL_SUPPLIER_CREATE',$user);
+                    if ($result < 0) $error++;
+                    // End call triggers
+				}
+				
                 if (! $error)
                 {
                     $this->db->commit();
@@ -307,7 +311,7 @@ class FactureFournisseur extends CommonInvoice
             }
             else
             {
-                $this->error=$this->db->error();
+                $this->error=$this->db->lasterror();
                 $this->db->rollback();
                 return -2;
             }
@@ -1151,7 +1155,7 @@ class FactureFournisseur extends CommonInvoice
         if (empty($txtva)) $txtva=0;
         if (empty($txlocaltax1)) $txlocaltax1=0;
         if (empty($txlocaltax2)) $txlocaltax2=0;
-
+        
         $remise_percent=price2num($remise_percent);
         $qty=price2num($qty);
         $pu=price2num($pu);
@@ -1197,7 +1201,7 @@ class FactureFournisseur extends CommonInvoice
             }
             else
             {
-                dol_syslog("Error error=".$this->error, LOG_ERR);
+                dol_syslog("Error after updateline error=".$this->error, LOG_ERR);
                 $this->db->rollback();
                 return -1;
             }
@@ -1427,7 +1431,7 @@ class FactureFournisseur extends CommonInvoice
 	        $response = new WorkboardResponse();
 	        $response->warning_delay=$conf->facture->fournisseur->warning_delay/60/60/24;
 	        $response->label=$langs->trans("SupplierBillsToPay");
-	        $response->url=DOL_URL_ROOT.'/fourn/facture/list.php?filtre=paye:0';
+	        $response->url=DOL_URL_ROOT.'/fourn/facture/list.php?filtre=fac.fk_statut:1,paye:0';
 	        $response->img=img_object($langs->trans("Bills"),"bill");
 
             while ($obj=$this->db->fetch_object($resql))
@@ -2096,16 +2100,17 @@ class SupplierInvoiceLine extends CommonObjectLine
 
 		$this->db->begin();
 
-		if ($this->fk_product) {
+		if (empty($this->fk_product))
+		{
 			$fk_product = "null";
 		} else {
 			$fk_product = $this->fk_product;
 		}
 
-		if ($this->fk_unit) {
-			$fk_unit = "'".$this->db->escape($this->fk_unit)."'";
-		} else {
+		if (empty($this->fk_unit)) {
 			$fk_unit = "null";
+		} else {
+		    $fk_unit = "'".$this->db->escape($this->fk_unit)."'";
 		}
 
 		$sql = "UPDATE ".MAIN_DB_PREFIX."facture_fourn_det SET";

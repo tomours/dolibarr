@@ -418,6 +418,7 @@ textarea.centpercent {
 }
 .center {
     text-align: center;
+    margin: 0px auto;
 }
 .left {
 	text-align: <?php print $left; ?>;
@@ -602,7 +603,10 @@ div.ficheaddleft {
 	padding-top: 1px;
 	padding-bottom: 1px;
 }
-
+div.attacharea {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
 
 /* ============================================================================== */
 /* Menu top et 1ere ligne tableau                                                 */
@@ -931,8 +935,7 @@ form#login {
 	text-shadow: 1px 1px 1px #FFF;
 }
 .login_table {
-	margin-left: 10px;
-	margin-right: 10px;
+	margin: 0px auto;  /* Center */
 	padding-left:6px;
 	padding-right:6px;
 	padding-top:16px;
@@ -948,18 +951,13 @@ form#login {
     -webkit-box-shadow: 3px 2px 20px #CCC;
     box-shadow: 3px 2px 20px #CCC;*/
 
-	border-radius: 8px;
+	border-radius: 5px;
 	border:solid 1px rgba(80,80,80,.4);
 
 	border-top:solid 1px f8f8f8;
-	/*
-	background-color: #f8f8f8;
-	background-image: -o-linear-gradient(top, rgba(250,250,250,.6) 0%, rgba(192,192,192,.3) 100%);
-	background-image: -moz-linear-gradient(top, rgba(250,250,250,.6) 0%, rgba(192,192,192,.3) 100%);
-	background-image: -webkit-linear-gradient(top, rgba(250,250,250,.6) 0%, rgba(192,192,192,.3) 100%);
-	background-image: -ms-linear-gradient(top, rgba(250,250,250,.6) 0%, rgba(192,192,192,.3) 100%);
-	background-image: linear-gradient(top, rgba(250,250,250,.6) 0%, rgba(192,192,192,.3) 100%);
-	*/
+}
+.login_main_message {
+	text-align: center;
 }
 div#login_left, div#login_right {
 	display: inline-block;
@@ -1518,27 +1516,16 @@ a.tab:link, a.tab:visited, a.tab:hover, a.tab#active {
     text-decoration: none;
     white-space: nowrap;
 
-    /*-moz-border-radius:6px 6px 0px 0px;
-	-webkit-border-radius:6px 6px 0px 0px;
-	border-radius:6px 6px 0px 0px;
-
-	background: rgb(<?php echo $colorbackvmenu2; ?>);
-
-	border-right: 1px solid #BBB;
-	border-left: 1px solid #BBB;
-	border-top: 1px solid #CCC;
-	*/
-
 	border-right: 1px solid transparent;
 	border-left: 1px solid transparent;
 	border-top: 1px solid transparent;
+	border-bottom: 0px !important;
 	-moz-border-radius:4px 4px 0 0;
     -webkit-border-radius: 4px 4px 0 0;
 	border-radius: 4px 4px 0 0;
 
 	background-image: none !important;
 }
-
 .tabactive, a.tab#active {
 	color: #<?php echo $colortextbacktab; ?> !important;
 	background: rgb(<?php echo $colorbacktabcard1; ?>) !important;
@@ -2074,13 +2061,11 @@ div.pagination li.pagination a,
 div.pagination li.pagination span {
 <?php if (empty($conf->dol_use_jmobile)) { ?>
   padding: 6px 12px;
-<?php } ?>
+  border-color: #ccc;
   margin-left: -1px;
   line-height: 1.42857143;
   color: #000;
   text-decoration: none;
-
-  border-color: #ccc;
 
 	background-color: #f5f5f5;
 	background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
@@ -2089,6 +2074,7 @@ div.pagination li.pagination span {
 	background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
 	background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
 	background-repeat: repeat-x;
+<?php } ?>
 }
 div.pagination li.pagination span.inactive {
   cursor: default;
@@ -2258,6 +2244,9 @@ td.nobottom, td.nobottom {
 }
 div.liste_titre .tagtd {
 	vertical-align: middle;
+}
+div.liste_titre {
+	box-shadow: 2px 2px 4px #CCC;
 }
 div.liste_titre {
 	min-height: 26px !important;	/* We cant use height because it's a div and it should be higher if content is more. but min-height doe not work either for div */
@@ -3616,7 +3605,9 @@ ul.ulmenu {
     color: #<?php echo $colortexttitle; ?> !important;
 	text-shadow: 1px 0px 1px #<?php echo $colorshadowtitle; ?>;
 }
-
+.ui-btn-icon-right {
+	border-right: 1px solid #ccc !important;
+}
 .ui-body-c {
 	border: 1px solid #ccc;
 	text-shadow: none;
@@ -3640,14 +3631,14 @@ ul.ulmenu {
 div.tabsElem a.tab {
 	background: transparent;
 }
-.ui-controlgroup-horizontal .ui-btn.ui-first-child {
+/*.ui-controlgroup-horizontal .ui-btn.ui-first-child {
 -webkit-border-top-left-radius: 6px;
 border-top-left-radius: 6px;
 }
 .ui-controlgroup-horizontal .ui-btn.ui-last-child {
 -webkit-border-top-right-radius: 6px;
 border-top-right-radius: 6px;
-}
+}*/
 .alilevel1 {
     color: #<?php echo $colortexttitle; ?> !important;
 	text-shadow: 1px 0px 1px #<?php echo $colorshadowtitle; ?>;
@@ -3678,7 +3669,6 @@ border-top-right-radius: 6px;
 .public_border {
 	border: 1px solid #888;
 }
-.public_liste_titre {
 
 
 

@@ -145,6 +145,7 @@ if ($result) {
 	
 	print '<a class="butAction" href="./card.php?action=create">' . $langs->trans("Addanaccount") . '</a>';
 	print '<a class="butAction" href="./importaccounts.php">' . $langs->trans("ImportAccount") . '</a>';
+	print '<a class="butAction" href="./productaccount.php">' . $langs->trans("CheckProductAccountancyCode") . '</a>';
 	print '<br/><br/>';
 	
 	print '<table class="noborder" width="100%">';
@@ -172,11 +173,12 @@ if ($result) {
 	print '</td>';
 	print '</tr>';
 	
-	$var = true;
+	$var = false;
 	
 	$accountstatic=new AccountingAccount($db);
 	
-	while ( $i < min($num, $limit) ) {
+	while ( $i < min($num, $limit) ) 
+	{
 		$obj = $db->fetch_object($resql);
 		
 		$accountstatic->id=$obj->rowid;

@@ -302,7 +302,7 @@ function dol_getprefix()
  *
  * 	@param	string	$relpath	Relative path to file (Ie: mydir/myfile, ../myfile, ...)
  * 	@param	string	$classname	Class name
- *  @return bool
+ *  @return bool                True if load is a success, False if it fails
  */
 function dol_include_once($relpath, $classname='')
 {
@@ -731,6 +731,7 @@ function dol_get_fiche_head($links=array(), $active='0', $title='', $notab=0, $p
 	// if =0 we don't use the feature
 	$limittoshow=(empty($conf->global->MAIN_MAXTABS_IN_CARD)?99:$conf->global->MAIN_MAXTABS_IN_CARD);
 	$displaytab=0;
+	$nbintab=0;
 
 	for ($i = 0 ; $i <= $maxkey ; $i++)
 	{
@@ -767,7 +768,7 @@ function dol_get_fiche_head($links=array(), $active='0', $title='', $notab=0, $p
 				}
 				else
 				{
-					$out.='<a data-role="button"'.(! empty($links[$i][2])?' id="'.$links[$i][2].'"':'').' class="tab inline-block" href="'.$links[$i][0].'">'.$links[$i][1].'</a>'."\n";
+					$out.='<a data-role="button"'.(! empty($links[$i][2])?' id="'.$links[$i][2].'"':'').' class="tabunactive tab inline-block" href="'.$links[$i][0].'">'.$links[$i][1].'</a>'."\n";
 				}
 			}
 			$out.='</div>';
@@ -787,6 +788,7 @@ function dol_get_fiche_head($links=array(), $active='0', $title='', $notab=0, $p
 				$outmore.='<a'.(! empty($links[$i][2])?' id="'.$links[$i][2].'"':'').' class="inline-block" href="'.$links[$i][0].'">'.$links[$i][1].'</a>'."\n";
 
 			$outmore.='</div>';
+			$nbintab++;
 		}
 		$displaytab=$i;
 	}
@@ -795,18 +797,18 @@ function dol_get_fiche_head($links=array(), $active='0', $title='', $notab=0, $p
 	{
 		$tabsname=str_replace("@", "", $picto);
 		$out.='<div id="moretabs'.$tabsname.'" class="inline-block tabsElem">';
-		$out.='<a href="" data-role="button" style="background-color: #f0f0f0;" class="tab inline-block">'.$langs->trans("More").'...</a>';
+		$out.='<a href="" data-role="button" style="background-color: #f0f0f0;" class="tab inline-block">'.$langs->trans("More").' <span class="badge">'.$nbintab.'</span></a>';
 		$out.='<div id="moretabsList'.$tabsname.'" style="position: absolute; left: -999em;text-align: left;margin:0px;padding:2px">'.$outmore.'</div>';
 		$out.="</div>\n";
 
 		$out.="<script>";
-		$out.="$('#moretabs".$tabsname.").mouseenter( function() { $('#moretabsList".$tabsname.").css('left','auto');});";
-		$out.="$('#moretabs".$tabsname.").mouseleave( function() { $('#moretabsList".$tabsname.").css('left','-999em');});";
+		$out.="$('#moretabs".$tabsname."').mouseenter( function() { $('#moretabsList".$tabsname."').css('left','auto');});";
+		$out.="$('#moretabs".$tabsname."').mouseleave( function() { $('#moretabsList".$tabsname."').css('left','-999em');});";
 		$out.="</script>";
 	}
 
 	$out.="</div>\n";
-
+	
 	if (! $notab) $out.="\n".'<div class="tabBar">'."\n";
 
 	return $out;
@@ -1227,19 +1229,6 @@ function dol_mktime($hour,$minute,$second,$month,$day,$year,$gm=false,$check=1)
 	else
 	{
 		dol_print_error('','PHP version must be 5.3+');
-		/*
-		$usealternatemethod=false;
-		if ($year <= 1970) $usealternatemethod=true;		// <= 1970
-		if ($year >= 2038) $usealternatemethod=true;		// >= 2038
-
-		if ($usealternatemethod || $gm)	// Si time gm, seule adodb peut convertir
-		{
-			$date=adodb_mktime($hour,$minute,$second,$month,$day,$year,0,$gm);
-		}
-		else
-		{
-			$date=mktime($hour,$minute,$second,$month,$day,$year);
-		}*/
 		return '';
 	}
 }
@@ -2015,7 +2004,7 @@ function img_picto($titlealt, $picto, $options = '', $pictoisfullpath = false, $
 		$tmparray=array(0=>$titlealt);
 		if (preg_match('/:[^\s]/',$titlealt)) $tmparray=explode(':',$titlealt);		// We explode if we have TextA:TextB. Not if we have TextA: TextB
 		$title=$tmparray[0];
-		$alt=empty($tmparray[1])?$tmparray[0]:$tmparray[1]; // Use title for alt if no alt is provided
+		$alt=empty($tmparray[1])?'':$tmparray[1];
 		return '<img src="'.$fullpathpicto.'" border="0" alt="'.dol_escape_htmltag($alt).'"'.($notitle?'':' title="'.dol_escape_htmltag($title).'"').($options?' '.$options:'').'>';	// Alt is used for accessibility, title for popup
 	}
 }
@@ -2743,8 +2732,8 @@ function getTitleFieldOfList($name, $thead=0, $file="", $field="", $begin="", $m
  *
  *	@param	string	$title			Title to show
  *	@return	string					Title to show
- *  @deprecated						Use print_fiche_titre instead
- *  @see print_fiche_titre
+ *  @deprecated						Use load_fiche_titre instead
+ *  @see print_fiche_titre, load_fiche_titre
  */
 function print_titre($title)
 {
@@ -2779,7 +2768,7 @@ function print_fiche_titre($title, $mesg='', $picto='title_generic.png', $pictoi
  * 	@param	int		$id					To force an id on html objects
  * 	@return	string
  */
-function load_fiche_titre($titre, $mesg='', $picto='title.png', $pictoisfullpath=0, $id=0)
+function load_fiche_titre($titre, $mesg='', $picto='title_generic.png', $pictoisfullpath=0, $id=0)
 {
 	global $conf;
 
@@ -2860,7 +2849,7 @@ function print_barre_liste($titre, $page, $file, $options='', $sortfield='', $so
 	{
 		if ($totalnboflines)	// If we know total nb of lines
 		{
-			$maxnbofpage=(empty($conf->dol_optimize_smallscreen)?10:3);		// nb before and after selected page
+			$maxnbofpage=(empty($conf->dol_optimize_smallscreen) ? 6 : 3);		// nb before and after selected page + ... + first or last
 
 			$nbpages=ceil($totalnboflines/$conf->liste_limit);
 			$cpt=($page-$maxnbofpage);
@@ -2869,8 +2858,10 @@ function print_barre_liste($titre, $page, $file, $options='', $sortfield='', $so
 			if ($cpt>=1)
 			{
 				$pagelist.= '<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><a '.(empty($conf->dol_use_jmobile)?'':'data-role="button" ').'href="'.$file.'?page=0'.$options.'&amp;sortfield='.$sortfield.'&amp;sortorder='.$sortorder.'">1</a></li>';
-				if ($cpt >= 2) $pagelist.='<li><span class="inactive">...</span></li>';
+				if ($cpt > 2) $pagelist.='<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><span '.(empty($conf->dol_use_jmobile)?'class="inactive"':'data-role="button"').'>...</span></li>';
+				else if ($cpt == 2) $pagelist.='<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><a '.(empty($conf->dol_use_jmobile)?'':'data-role="button" ').'href="'.$file.'?page=1'.$options.'&amp;sortfield='.$sortfield.'&amp;sortorder='.$sortorder.'">2</a></li>';
 			}
+			
 			do
 			{
 				if ($cpt==$page)
@@ -2884,9 +2875,11 @@ function print_barre_liste($titre, $page, $file, $options='', $sortfield='', $so
 				$cpt++;
 			}
 			while ($cpt < $nbpages && $cpt<=$page+$maxnbofpage);
+			
 			if ($cpt<$nbpages)
 			{
-				if ($cpt<$nbpages-1) $pagelist.= '<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><span '.(empty($conf->dol_use_jmobile)?'class="inactive"':'data-role="button"').'>...</span></li>';
+				if ($cpt<$nbpages-2) $pagelist.= '<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><span '.(empty($conf->dol_use_jmobile)?'class="inactive"':'data-role="button"').'>...</span></li>';
+				else if ($cpt == $nbpages-2) $pagelist.= '<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><a '.(empty($conf->dol_use_jmobile)?'':'data-role="button" ').'href="'.$file.'?page='.($nbpages-2).$options.'&amp;sortfield='.$sortfield.'&amp;sortorder='.$sortorder.'">'.($nbpages - 1).'</a></li>';
 				$pagelist.= '<li'.(empty($conf->dol_use_jmobile)?' class="pagination"':'').'><a '.(empty($conf->dol_use_jmobile)?'':'data-role="button" ').'href="'.$file.'?page='.($nbpages-1).$options.'&amp;sortfield='.$sortfield.'&amp;sortorder='.$sortorder.'">'.$nbpages.'</a></li>';
 			}
 		}
@@ -3756,7 +3749,7 @@ function yn($yesno, $case=1, $color=0)
  *
  *	@param	string	$num            Id of object
  *	@param  int		$level		    Level of subdirs to return (1, 2 or 3 levels)
- * 	@param	int		$alpha		    Use alpha ref
+ * 	@param	int		$alpha		    0=Keep number only to forge path, 1=Use alpha part afer the - (By default, use 0).
  *  @param  int		$withoutslash   0=With slash at end, 1=without slash at end (except if '/', we return '')
  *  @param	Object	$object			Object
  *  @param	string	$modulepart		Type of object ('invoice_supplier, 'donation', 'invoice', ...')
@@ -4398,15 +4391,17 @@ function dol_htmloutput_events()
 
 /**
  *	Get formated messages to output (Used to show messages on html output).
+ *  This include also the translation of the message key.
  *
- *	@param	string		$mesgstring		Message string
- *	@param	array		$mesgarray      Messages array
+ *	@param	string		$mesgstring		Message string or message key
+ *	@param	string[]	$mesgarray      Array of message strings or message keys
  *  @param  string		$style          Style of message output ('ok' or 'error')
  *  @param  int			$keepembedded   Set to 1 in error message must be kept embedded into its html place (this disable jnotify)
  *	@return	string						Return html output
  *
  *  @see    dol_print_error
  *  @see    dol_htmloutput_errors
+ *  @see    setEventMessages
  */
 function get_htmloutput_mesg($mesgstring='',$mesgarray='', $style='ok', $keepembedded=0)
 {
@@ -4491,14 +4486,15 @@ function get_htmloutput_errors($mesgstring='', $mesgarray='', $keepembedded=0)
 /**
  *	Print formated messages to output (Used to show messages on html output).
  *
- *	@param	string	$mesgstring		 Message
- *	@param	array	$mesgarray       Messages array
- *  @param  string	$style           Which style to use ('ok', 'warning', 'error')
- *  @param  int		$keepembedded    Set to 1 if message must be kept embedded into its html place (this disable jnotify)
+ *	@param	string		$mesgstring		Message string or message key
+ *	@param	string[]	$mesgarray      Array of message strings or message keys
+ *  @param  string      $style          Which style to use ('ok', 'warning', 'error')
+ *  @param  int         $keepembedded   Set to 1 if message must be kept embedded into its html place (this disable jnotify)
  *  @return	void
  *
  *  @see    dol_print_error
  *  @see    dol_htmloutput_errors
+ *  @see    setEventMessages
  */
 function dol_htmloutput_mesg($mesgstring='',$mesgarray='', $style='ok', $keepembedded=0)
 {

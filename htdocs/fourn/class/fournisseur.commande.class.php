@@ -703,7 +703,10 @@ class CommandeFournisseur extends CommonOrder
 			{
 	            $sql.= " date_approve='".$this->db->idate($now)."',";
     	        $sql.= " fk_user_approve = ".$user->id;
-    	        if (! empty($conf->global->SUPPLIER_ORDER_DOUBLE_APPROVAL)) $movetoapprovestatus=false;
+    	        if (! empty($conf->global->SUPPLIER_ORDER_DOUBLE_APPROVAL) && $conf->global->MAIN_FEATURES_LEVEL > 0 && $this->total_ht >= $conf->global->SUPPLIER_ORDER_DOUBLE_APPROVAL)
+    	        {
+    	        	if (empty($this->user_approve_id2)) $movetoapprovestatus=false;		// second level approval not done
+    	        }
 			}
 			else	// request a second level approval
 			{
@@ -995,7 +998,7 @@ class CommandeFournisseur extends CommonOrder
         $sql.= ") ";
         $sql.= " VALUES (";
         $sql.= "''";
-        $sql.= ", '".$this->ref_supplier."'";
+        $sql.= ", '".$this->db->escape($this->ref_supplier)."'";
         $sql.= ", '".$this->db->escape($this->note_private)."'";
         $sql.= ", '".$this->db->escape($this->note_public)."'";
         $sql.= ", ".$conf->entity;
@@ -1004,7 +1007,7 @@ class CommandeFournisseur extends CommonOrder
 		$sql.= ", ".($this->date_livraison?"'".$this->db->idate($this->date_livraison)."'":"null");
         $sql.= ", ".$user->id;
         $sql.= ", 0";
-        $sql.= ", " . $this->source;
+        $sql.= ", ".$this->db->escape($this->source);
         $sql.= ", '".$conf->global->COMMANDE_SUPPLIER_ADDON_PDF."'";
         $sql.= ", ".($this->mode_reglement_id > 0 ? $this->mode_reglement_id : 'null');
         $sql.= ", ".($this->cond_reglement_id > 0 ? $this->cond_reglement_id : 'null');
